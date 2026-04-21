@@ -20,10 +20,8 @@ public class HelloController {
     }
 
     @GetMapping("/api/authn/hello")
-    @Operation(description = "sample authenticated GET",
-            security = @SecurityRequirement(name = "basicAuth"))
-    public String authenticatedHello(
-            @RequestParam(name = "name", defaultValue = "you", required = false) String name,
+    @Operation(description = "sample authenticated GET", security = @SecurityRequirement(name = "basicAuth"))
+    public String authenticatedHello(@RequestParam(name = "name", defaultValue = "you", required = false) String name,
             @Parameter(hidden = true) @AuthenticationPrincipal UserDetails user) {
         return "hello, " + name + " :caller=" + user.getUsername();
     }

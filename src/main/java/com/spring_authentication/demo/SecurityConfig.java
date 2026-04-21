@@ -21,11 +21,7 @@ public class SecurityConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain anonymousSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/api/anonymous/**")
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                );
+        http.securityMatcher("/api/anonymous/**").authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();
     }
@@ -33,8 +29,7 @@ public class SecurityConfig {
     @Bean
     @Order(100)
     public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatchers(cfg -> cfg
-                .requestMatchers("/swagger-ui*", "/swagger-ui/**", "/v3/api-docs/**"));
+        http.securityMatchers(cfg -> cfg.requestMatchers("/swagger-ui*", "/swagger-ui/**", "/v3/api-docs/**"));
         http.authorizeHttpRequests(cfg -> cfg.anyRequest().permitAll());
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -42,21 +37,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain fallbackSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                        .anyRequest().authenticated()
-                ).httpBasic(withDefaults());
+        http.authorizeHttpRequests(auth -> auth.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .anyRequest().authenticated()).httpBasic(withDefaults());
 
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
-        var user = User.withUsername("user")
-                .password("{noop}password")
-                .roles("USER")
-                .build();
+        var user = User.withUsername("user").password("{noop}password").roles("USER").build();
 
         return new InMemoryUserDetailsManager(user);
     }

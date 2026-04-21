@@ -11,11 +11,7 @@ public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .components(new Components()
-                        .addSecuritySchemes("basicAuth",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("basic")));
+        return new OpenAPI().components(new Components().addSecuritySchemes("basicAuth",
+                new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")));
     }
 }

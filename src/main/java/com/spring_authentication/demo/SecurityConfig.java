@@ -1,9 +1,13 @@
 package com.spring_authentication.demo;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,7 +25,9 @@ public class SecurityConfig {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain anonymousSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/anonymous/**").authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        http.securityMatcher("/api/anonymous/**")
+                .cors(cors -> cors.configurationSource(corsLimitedConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();
     }
@@ -30,6 +36,7 @@ public class SecurityConfig {
     @Order(100)
     public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
         http.securityMatchers(cfg -> cfg.requestMatchers("/swagger-ui*", "/swagger-ui/**", "/v3/api-docs/**"));
+        http.cors(cors -> cors.configurationSource(corsLimitedConfigurationSource()));
         http.authorizeHttpRequests(cfg -> cfg.anyRequest().permitAll());
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
@@ -38,9 +45,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain fallbackSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().authenticated()).httpBasic(withDefaults());
+                .anyRequest().authenticated()).cors(cors -> cors.configurationSource(corsLimitedConfigurationSource()))
+                .httpBasic(withDefaults());
 
         return http.build();
+    }
+
+    private CorsConfigurationSource corsLimitedConfigurationSource() {
+        return request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOrigins(List.of("http://localhost:8080"));
+            config.setAllowedMethods(List.of("GET", "POST"));
+            config.setAllowedHeaders(List.of("*"));
+            return config;
+        };
     }
 
     @Bean

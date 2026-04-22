@@ -51,7 +51,7 @@ class DemoApplicationTests {
         ResponseEntity<String> response = authenticatedRestTemplate.exchange(url("/api/authn/hello?name=jim"),
                 HttpMethod.GET, null, String.class);
 
-        assertThat(response.getBody()).isEqualTo("hello, jim :caller=user");
+        assertThat(response.getBody()).isEqualTo("hello, jim :caller=user1");
     }
 
     @Test
@@ -82,7 +82,7 @@ class DemoApplicationTests {
         public RestTemplate authnUser(ClientHttpRequestFactory requestFactory) {
             RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
             restTemplate.setInterceptors(
-                    List.of(new BasicAuthenticationInterceptor("user", "password"), new RestTemplateLoggingFilter()));
+                    List.of(new BasicAuthenticationInterceptor("user1", "password1"), new RestTemplateLoggingFilter()));
             return restTemplate;
         }
     }

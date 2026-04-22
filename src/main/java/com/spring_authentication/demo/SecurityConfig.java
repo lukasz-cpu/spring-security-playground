@@ -6,6 +6,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -62,9 +66,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        var user = User.withUsername("user").password("{noop}password").roles("USER").build();
+    public UserDetailsService sharedUserDetailsService(PasswordEncoder encoder) {
+        User.UserBuilder ubuilder = User.builder().passwordEncoder(encoder::encode);
 
-        return new InMemoryUserDetailsManager(user);
+        List<UserDetails> users = List.of(ubuilder.username("user1").password("password1").roles().build(),
+                ubuilder.username("user2").password("password2").roles().build());
+
+        return new InMemoryUserDetailsManager(users);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
